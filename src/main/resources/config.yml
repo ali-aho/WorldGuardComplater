@@ -1,0 +1,45 @@
+# ============================================================
+#  WorldGuard Complater  -  by Vortex_Miner1 (VortexM)
+#  WorldGuard, but completer. MIT License.
+# ============================================================
+
+# Plugin language: en / fa
+language: en
+
+# ---- Claim ----
+claim:
+  # Region id prefix for auto-named claims: <prefix><number>
+  prefix: "claim"
+  # Region name when the player does not provide one: <player>_<n>
+  auto-name: true
+  # Max claims per player (used when player has no wgc.limit.<n> permission)
+  default-limit: 3
+  # Block radius around the player
+  default-radius: 16
+  # Max radius a player may request
+  max-radius: 48
+  # Minimum region volume (blocks); 0 = disabled
+  min-volume: 64
+  # Cuboid height: -1 = full world height
+  height: -1
+  # Cost per claim. 0 = free. Requires Vault + an economy plugin.
+  cost: 0.0
+  # Refund when the player deletes their own claim (0 = no refund)
+  refund: 0.0
+
+# ---- Economy (Vault) ----
+economy:
+  # Set false to never use Vault even when it is installed
+  enabled: true
+
+# ---- GUI ----
+gui:
+  enabled: true
+  title: "&3&lVortexM &b» &fRegions"
+  rows-per-page: 6
+
+# ---- Message prefix ----
+prefix: "&8[&3WGC&8] &7"
+
+# ---- Region ID validation regex (advanced) ----
+region-id-regex: "^[A-Za-z0-9_-]{1,32}$"

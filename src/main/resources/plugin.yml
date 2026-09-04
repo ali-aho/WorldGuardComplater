@@ -1,0 +1,66 @@
+name: WorldGuardComplater
+display-name: "WorldGuard Complater"
+version: 1.0.0
+main: com.vortexm.wgc.WorldGuardComplater
+api-version: '1.20'
+author: Vortex_Miner1
+description: "WorldGuard, but completer: tab-complete, GUI, help, claiming and more."
+website: https://github.com/VortexM1/WorldGuardComplater
+
+softdepend:
+  - WorldGuard
+  - WorldEdit
+  - Vault
+
+commands:
+  wgc:
+    description: WorldGuard Complater main command
+    usage: /wgc help
+    aliases: [worldguardcomplater]
+
+permissions:
+  wgc.use:
+    description: Access to the /wgc command
+    default: true
+  wgc.help:
+    description: /wgc help
+    default: true
+  wgc.info:
+    description: /wgc info
+    default: true
+  wgc.claim:
+    description: /wgc claim (own claims)
+    default: true
+  wgc.list:
+    description: /wgc list
+    default: true
+  wgc.limit.bypass:
+    description: Ignore claim limits
+    default: op
+  wgc.limit.<n>:
+    description: Max number of claims (wgc.limit.3 = 3 claims)
+    default: op
+  wgc.free:
+    description: Skip claim cost
+    default: op
+  wgc.delete.own:
+    description: Delete own regions
+    default: true
+  wgc.delete.others:
+    description: Delete any region
+    default: op
+  wgc.flag.own:
+    description: Set flags on own regions
+    default: true
+  wgc.flag.others:
+    description: Set flags on any region
+    default: op
+  wgc.member.own:
+    description: Manage members/owners of own regions
+    default: true
+  wgc.member.others:
+    description: Manage members/owners of any region
+    default: op
+  wgc.admin:
+    description: Admin commands (reload, GUI access to all)
+    default: op

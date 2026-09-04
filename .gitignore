@@ -1,0 +1,5 @@
+target/
+build_log.txt
+*.iml
+.idea/
+.vscode/
