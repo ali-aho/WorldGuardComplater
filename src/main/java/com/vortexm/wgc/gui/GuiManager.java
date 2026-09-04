@@ -38,7 +38,28 @@ public final class GuiManager {
 
     public void open(Player p, Inventory inv, ClickHandler handler) {
         open.put(p.getUniqueId(), new Menu(inv, handler));
-        p.openInventory(inv);
+        // Defer the actual open by one tick: opening an inventory while a click
+        // event is being processed causes client desync and event reentrancy.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!p.isOnline()) {
+                open.remove(p.getUniqueId());
+                return;
+            }
+            p.openInventory(inv);
+        });
+    }
+
+    /**
+     * Forget the menu ONLY if the closed inventory is still the registered one.
+     * When we swap menus (list -> panel -> flags...) the old inventory's close
+     * event fires while the new menu is already registered - a plain forget()
+     * would unregister the NEW menu and leave its items grabbable.
+     */
+    public void forgetIf(Player p, Inventory closed) {
+        Menu m = open.get(p.getUniqueId());
+        if (m != null && m.inventory().equals(closed)) {
+            open.remove(p.getUniqueId());
+        }
     }
 
     public boolean isManaged(Inventory inv) {

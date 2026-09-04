@@ -25,16 +25,28 @@ public final class GuiListener implements Listener {
         Inventory top = e.getView().getTopInventory();
         if (!top.equals(menu.inventory())) return;
 
-        // clicking inside the managed menu: never vanilla-handle it
-        if (e.getClickedInventory() != null && e.getClickedInventory().equals(top)) {
-            e.setCancelled(true);
-            int raw = e.getRawSlot();
-            if (raw < 0 || raw >= top.getSize()) return;
-            menu.handler().onClick(p, e);
-        } else {
-            // shift-clicking from the player inventory would move items in; block it
-            if (e.getClick().isShiftClick() || e.getClick().isKeyboardClick()) {
+        // any click while a managed menu is on screen: never let vanilla move items
+        e.setCancelled(true);
+        if (e.getAction() != org.bukkit.event.inventory.InventoryAction.NOTHING
+                && e.getView().getBottomInventory().equals(e.getClickedInventory())) {
+            return; // clicked own inventory - blocked, no menu action
+        }
+        int raw = e.getRawSlot();
+        if (raw < 0 || raw >= top.getSize()) return;
+        menu.handler().onClick(p, e);
+    }
+
+    @EventHandler
+    public void onDrag(org.bukkit.event.inventory.InventoryDragEvent e) {
+        if (!(e.getWhoClicked() instanceof Player p)) return;
+        GuiManager.Menu menu = plugin.gui().menuOf(p);
+        if (menu == null) return;
+        // block drags that touch the managed inventory
+        Inventory top = e.getView().getTopInventory();
+        for (int raw : e.getRawSlots()) {
+            if (raw < top.getSize()) {
                 e.setCancelled(true);
+                return;
             }
         }
     }
@@ -42,7 +54,7 @@ public final class GuiListener implements Listener {
     @EventHandler
     public void onClose(InventoryCloseEvent e) {
         if (e.getPlayer() instanceof Player p) {
-            plugin.gui().forget(p);
+            plugin.gui().forgetIf(p, e.getInventory());
         }
     }
 }

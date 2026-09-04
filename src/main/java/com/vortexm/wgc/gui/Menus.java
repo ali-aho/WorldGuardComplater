@@ -66,20 +66,24 @@ public final class Menus {
             inv.setItem(i, Text.item(Material.GRASS_BLOCK, "&b&l" + r.getId(), lore));
         }
 
-        // nav bar
-        inv.setItem(PREV_SLOT - 1, Text.item(Material.ARROW, "&7Previous page", null));
-        inv.setItem(NEXT_SLOT - 1, Text.item(Material.ARROW, "&7Next page", null));
-        inv.setItem(CLOSE_SLOT - 1, Text.item(Material.BARRIER, "&cClose", null));
+        // nav bar (45=prev, 49=close, 53=next; other bar slots get glass filler)
+        inv.setItem(PREV_SLOT, Text.item(Material.ARROW, "&7Previous page", null));
+        inv.setItem(CLOSE_SLOT, Text.item(Material.BARRIER, "&cClose", null));
+        inv.setItem(NEXT_SLOT, Text.item(Material.ARROW, "&7Next page", null));
+        ItemStack filler = Text.item(Material.GRAY_STAINED_GLASS_PANE, " ", null);
+        for (int s = 45; s <= 53; s++) {
+            if (inv.getItem(s) == null) inv.setItem(s, filler);
+        }
 
         final int fPage = page;
         final int fPages = pages;
         plugin.gui().open(p, inv, (player, e) -> {
             int slot = e.getSlot();
-            if (slot == PREV_SLOT - 1 && fPage > 1) {
+            if (slot == PREV_SLOT && fPage > 1) {
                 openRegions(player, fPage - 1);
-            } else if (slot == NEXT_SLOT - 1 && fPage < fPages) {
+            } else if (slot == NEXT_SLOT && fPage < fPages) {
                 openRegions(player, fPage + 1);
-            } else if (slot == CLOSE_SLOT - 1) {
+            } else if (slot == CLOSE_SLOT) {
                 player.closeInventory();
             } else if (slot >= 0 && slot < 45 && start + slot < regions.size()) {
                 openRegionPanel(player, regions.get(start + slot).getId());
