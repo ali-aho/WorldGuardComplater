@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -101,10 +102,10 @@ public final class Menus {
             return;
         }
         Lang lang = plugin.lang();
-        Inventory inv = Bukkit.createInventory(null, 27, lang.fmt("region-menu-title", r.getId()));
+        Inventory inv = Bukkit.createInventory(null, 45, lang.fmt("region-menu-title", r.getId()));
 
         inv.setItem(10, Text.item(Material.RED_BANNER, "&c&lFlags", List.of(
-                "&7Toggle the common state flags", "", "&bClick &7to open")));
+                "&7View and toggle all flags", "", "&bClick &7to open")));
         inv.setItem(12, Text.item(Material.PLAYER_HEAD, "&e&lMembers", List.of(
                 "&7Owners &7and members", "", "&bClick &7to open")));
         inv.setItem(14, Text.item(Material.LIME_WOOL, "&a&lInfo", List.of(
@@ -112,8 +113,26 @@ public final class Menus {
         inv.setItem(16, Text.item(Material.TNT, "&c&lDelete", List.of(
                 "&7Delete this region", "", "&cClick &7to confirm")));
 
+        inv.setItem(19, Text.item(Material.ENDER_PEARL, "&d&lTeleport", List.of(
+                "&7Go to the region center or", "&7its &fspawn/teleport &7flag", "",
+                "&bClick &7to teleport")));
+        inv.setItem(21, Text.item(Material.RESPAWN_ANCHOR, "&6&lSet Spawn", List.of(
+                "&7Set the region spawn flag", "&7to where you are standing", "",
+                "&7Must be &finside &7the region")));
+        inv.setItem(23, Text.item(Material.EXPERIENCE_BOTTLE, "&b&lPriority&7: &f" + r.getPriority(), List.of(
+                "&7Higher priority wins conflicts", "", "&bLeft-click &7+1  &f+10  &7+100",
+                "&fShift+click &7-1  -10  -100", "&7Drop key: type a custom value")));
+        inv.setItem(25, Text.item(Material.NAME_TAG, "&2&lParent&7: &f" +
+                (r.getParent() != null ? r.getParent().getId() : "none"), List.of(
+                "&7Child regions inherit members", "&7and flags from their parent", "",
+                "&bClick &7to pick a parent", "&7Shift+click &7to remove parent")));
+        inv.setItem(40, Text.item(Material.WOODEN_AXE, "&9&lRedefine", List.of(
+                "&7Replace this region's area with", "&7your current WorldEdit selection", "",
+                "&7Use &f//wand &7first!", "&fShift+click &7to apply")));
+
         plugin.gui().open(p, inv, (player, e) -> {
             int slot = e.getSlot();
+            boolean shift = e.getClick().isShiftClick();
             switch (slot) {
                 case 10 -> openFlagMenu(player, r.getId(), 0);
                 case 12 -> openMembersMenu(player, r.getId());
@@ -122,8 +141,130 @@ public final class Menus {
                     Bukkit.dispatchCommand(player, "wgc info " + r.getId());
                 }
                 case 16 -> openDeleteConfirm(player, r.getId());
+                case 19 -> {
+                    player.closeInventory();
+                    Bukkit.dispatchCommand(player, "wgc teleport " + r.getId());
+                }
+                case 21 -> {
+                    player.closeInventory();
+                    Bukkit.dispatchCommand(player, "wgc setspawn " + r.getId());
+                }
+                case 23 -> {
+                    int delta = shift ? -10 : 10;
+                    Bukkit.dispatchCommand(player, "wgc setpriority " + r.getId() + " " + (r.getPriority() + delta));
+                    openRegionPanel(player, r.getId()); // refresh
+                }
+                case 25 -> {
+                    if (shift) {
+                        Bukkit.dispatchCommand(player, "wgc setparent " + r.getId());
+                        openRegionPanel(player, r.getId());
+                    } else {
+                        openParentPick(player, r.getId());
+                    }
+                }
+                case 40 -> {
+                    if (!shift) {
+                        plugin.lang().send(player, "define-shift-hint");
+                        return;
+                    }
+                    player.closeInventory();
+                    Bukkit.dispatchCommand(player, "wgc redefine " + r.getId());
+                }
                 default -> {
                 }
+            }
+        });
+    }
+
+    /* ---------------- parent pick ---------------- */
+
+    private void openParentPick(Player p, String regionId) {
+        ProtectedRegion r = WgBridge.region(p.getWorld(), regionId);
+        if (r == null) return;
+        List<ProtectedRegion> candidates = new ArrayList<>();
+        for (ProtectedRegion cand : WgBridge.regionsOf(p.getWorld())) {
+            if (WgBridge.canBeParent(r, cand)) candidates.add(cand);
+        }
+        candidates.sort(Comparator.comparing(ProtectedRegion::getId));
+
+        int perPage = 45;
+        Inventory inv = Bukkit.createInventory(null, 54,
+                plugin.lang().fmt("parent-menu-title", r.getId()));
+        int shown = Math.min(perPage, candidates.size());
+        for (int i = 0; i < shown; i++) {
+            ProtectedRegion cand = candidates.get(i);
+            inv.setItem(i, Text.item(Material.NAME_TAG, "&f" + cand.getId(), List.of(
+                    "&7priority: &f" + cand.getPriority(), "",
+                    "&bClick &7to set as parent")));
+        }
+        inv.setItem(CLOSE_SLOT, Text.item(Material.BARRIER, "&cBack", null));
+
+        plugin.gui().open(p, inv, (player, e) -> {
+            if (e.getSlot() == CLOSE_SLOT) {
+                openRegionPanel(player, r.getId());
+                return;
+            }
+            if (e.getSlot() < 0 || e.getSlot() >= shown) return;
+            ProtectedRegion cand = candidates.get(e.getSlot());
+            try {
+                r.setParent(cand);
+                plugin.lang().send(player, "parent-success", r.getId(), cand.getId());
+            } catch (Exception ex) {
+                plugin.lang().send(player, "parent-cycle");
+            }
+            openParentPick(player, r.getId()); // refresh
+        });
+    }
+
+    /* ---------------- guide (the in-game handbook) ---------------- */
+
+    private static final List<String> GUIDE_SECTIONS = List.of("commands", "flags", "claims", "permissions", "tips");
+
+    public void openGuide(Player p, String section) {
+        Lang lang = plugin.lang();
+        String sec = section == null ? null
+                : GUIDE_SECTIONS.stream().filter(s -> s.startsWith(section.toLowerCase(Locale.ROOT))).findFirst().orElse(null);
+        if (sec == null) {
+            // section chooser
+            Inventory inv = Bukkit.createInventory(null, 27, lang.fmt("guide-menu-title"));
+            inv.setItem(10, Text.item(Material.BOOK, "&b&lCommands", List.of(
+                    "&7Every /wgc command explained", "", "&bClick &7to read")));
+            inv.setItem(12, Text.item(Material.RED_DYE, "&c&lFlags", List.of(
+                    "&7All flags and what they do", "", "&bClick &7to read")));
+            inv.setItem(14, Text.item(Material.GRASS_BLOCK, "&a&lClaims", List.of(
+                    "&7How to claim your first region", "", "&bClick &7to read")));
+            inv.setItem(16, Text.item(Material.GOLDEN_AXE, "&6&lPermissions", List.of(
+                    "&7Who can do what", "", "&bClick &7to read")));
+
+            plugin.gui().open(p, inv, (player, e) -> {
+                switch (e.getSlot()) {
+                    case 10 -> openGuide(player, "commands");
+                    case 12 -> openGuide(player, "flags");
+                    case 14 -> openGuide(player, "claims");
+                    case 16 -> openGuide(player, "permissions");
+                    default -> {
+                    }
+                }
+            });
+            return;
+        }
+        openGuideSection(p, sec);
+    }
+
+    private void openGuideSection(Player p, String section) {
+        Lang lang = plugin.lang();
+        List<String[]> pages = GuideContent.pages(plugin, section); // [title, l1, l2, l3]
+        Inventory inv = Bukkit.createInventory(null, 27, lang.fmt("guide-section-title",
+                section.substring(0, 1).toUpperCase(Locale.ROOT) + section.substring(1)));
+        int slot = 11;
+        for (int i = 0; i < Math.min(5, pages.size()); i++) {
+            String[] page = pages.get(i);
+            inv.setItem(slot + i * 2, Text.item(Material.PAPER, page[0], List.of(page[1], page[2], page[3])));
+        }
+        inv.setItem(CLOSE_SLOT, Text.item(Material.BARRIER, "&cBack", null));
+        plugin.gui().open(p, inv, (player, e) -> {
+            if (e.getSlot() == CLOSE_SLOT) {
+                openGuide(player, null);
             }
         });
     }

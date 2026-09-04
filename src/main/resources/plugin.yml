@@ -1,6 +1,6 @@
 name: WorldGuardComplater
 display-name: "WorldGuard Complater"
-version: 1.0.0
+version: 1.1.0
 main: com.vortexm.wgc.WorldGuardComplater
 api-version: '1.20'
 author: Vortex_Miner1

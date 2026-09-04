@@ -1,5 +1,6 @@
 package com.vortexm.wgc.command;
 
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.vortexm.wgc.WorldGuardComplater;
 import com.vortexm.wgc.claim.Claims;
@@ -8,6 +9,7 @@ import com.vortexm.wgc.util.FlagCatalog;
 import com.vortexm.wgc.util.Lang;
 import com.vortexm.wgc.util.WgBridge;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,9 +29,10 @@ import java.util.Locale;
 public final class WgcCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> SUBS = List.of(
-            "help", "gui", "claim", "list", "info", "flag",
+            "help", "guide", "gui", "claim", "list", "info", "flag",
             "addmember", "removemember", "addowner", "removeowner",
-            "delete", "reload");
+            "define", "redefine", "select", "setpriority", "setparent",
+            "teleport", "setspawn", "delete", "reload");
 
     private final WorldGuardComplater plugin;
     private final Claims claims;
@@ -62,6 +65,7 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
         String sub = args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
             case "help" -> help(sender, args.length > 1 ? parseInt(args[1], 1) : 1);
+            case "guide", "book", "wiki", "helpme" -> guide(sender, args);
             case "gui" -> {
                 if (!(sender instanceof Player p)) {
                     lang.send(sender, "player-only");
@@ -75,13 +79,20 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
             }
             case "claim" -> claim(sender, args);
             case "list" -> list(sender, args);
-            case "info" -> info(sender, args);
-            case "flag" -> flag(sender, args);
-            case "addmember" -> member(sender, args, "addmember", false);
-            case "removemember" -> member(sender, args, "removemember", false);
-            case "addowner" -> member(sender, args, "addowner", true);
-            case "removeowner" -> member(sender, args, "removeowner", true);
-            case "delete" -> delete(sender, args);
+            case "info", "i" -> info(sender, args);
+            case "flag", "f" -> flag(sender, args);
+            case "addmember", "addmem", "am" -> member(sender, args, "addmember", false);
+            case "removemember", "remmember", "removemem", "remmem", "rm" -> member(sender, args, "removemember", false);
+            case "addowner", "ao" -> member(sender, args, "addowner", true);
+            case "removeowner", "remowner", "ro" -> member(sender, args, "removeowner", true);
+            case "delete", "del", "rem" -> delete(sender, args);
+            case "define", "create", "def", "d" -> define(sender, args, false);
+            case "redefine", "update", "move" -> define(sender, args, true);
+            case "select", "sel", "s" -> select(sender, args);
+            case "setpriority", "priority", "pri" -> setPriority(sender, args);
+            case "setparent", "parent", "par" -> setParent(sender, args);
+            case "teleport", "tp" -> teleport(sender, args);
+            case "setspawn", "ss" -> setSpawn(sender, args);
             case "reload" -> {
                 if (!sender.hasPermission("wgc.admin")) {
                     lang.send(sender, "no-permission");
@@ -419,6 +430,277 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /* ==================== new region commands (v1.1) ==================== */
+
+    /** /wgc define <id> and /wgc redefine <id> (from WE selection). */
+    private void define(CommandSender sender, String[] args, boolean redefineMode) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        String key = redefineMode ? "redefine" : "define";
+        if (!p.hasPermission("wgc.admin")
+                && !p.hasPermission("wgc." + key + ".own")
+                && !p.hasPermission("wgc." + key + ".others")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        if (args.length < 2) {
+            lang.send(p, key + "-usage");
+            return;
+        }
+        String id = args[1];
+        if (!id.matches(plugin.getConfig().getString("region-id-regex", "^[A-Za-z0-9_-]{1,32}$"))) {
+            lang.send(p, "claim-fail-invalid");
+            return;
+        }
+        var world = p.getWorld();
+        ProtectedCuboidRegion cub = WgBridge.cuboidFromSelection(p, id);
+        if (cub == null) {
+            lang.send(p, "define-no-selection");
+            return;
+        }
+        var rm = WgBridge.managerBukkit(world);
+        if (rm == null) {
+            lang.send(p, "wg-missing");
+            return;
+        }
+        if (redefineMode) {
+            ProtectedRegion existing = WgBridge.region(world, id);
+            if (existing == null) {
+                lang.send(p, "not-found", id);
+                return;
+            }
+            boolean canOthers = p.hasPermission("wgc.admin") || p.hasPermission("wgc.redefine.others");
+            if (!canOthers && !WgBridge.isOwner(existing, p.getUniqueId(), p.getName())) {
+                lang.send(p, "define-not-owner");
+                return;
+            }
+            if (WgBridge.redefine(rm, existing, cub)) {
+                lang.send(p, "redefine-success", id, WgBridge.volume(cub));
+            } else {
+                lang.send(p, "define-fail");
+            }
+            return;
+        }
+        if (WgBridge.exists(world, id)) {
+            lang.send(p, "region-id-taken");
+            return;
+        }
+        if (WgBridge.addRegion(rm, cub)) {
+            // creator becomes owner automatically
+            cub.getOwners().addPlayer(p.getUniqueId());
+            lang.send(p, "define-success", id, WgBridge.volume(cub));
+        } else {
+            lang.send(p, "define-fail");
+        }
+    }
+
+    /** /wgc select [region] - make a WE selection out of a region. */
+    private void select(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.select")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        ProtectedRegion r;
+        if (args.length >= 2) {
+            r = WgBridge.region(p.getWorld(), args[1]);
+            if (r == null) {
+                lang.send(p, "not-found", args[1]);
+                return;
+            }
+        } else {
+            List<ProtectedRegion> at = WgBridge.regionsAt(p.getLocation());
+            if (at.isEmpty()) {
+                lang.send(p, "info-none");
+                return;
+            }
+            r = at.get(0);
+        }
+        if (WgBridge.selectRegion(p, r)) {
+            lang.send(p, "select-success", r.getId());
+        } else {
+            lang.send(p, "select-fail");
+        }
+    }
+
+    /** /wgc setpriority <region> <value>. */
+    private void setPriority(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.admin") && !p.hasPermission("wgc.priority.own") && !p.hasPermission("wgc.priority.others")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        if (args.length < 3) {
+            lang.send(p, "priority-usage");
+            return;
+        }
+        ProtectedRegion r = WgBridge.region(p.getWorld(), args[1]);
+        if (r == null) {
+            lang.send(p, "not-found", args[1]);
+            return;
+        }
+        boolean canOthers = p.hasPermission("wgc.admin") || p.hasPermission("wgc.priority.others");
+        if (!canOthers && !WgBridge.isOwner(r, p.getUniqueId(), p.getName())) {
+            lang.send(p, "flag-no-permission-region");
+            return;
+        }
+        int val;
+        try {
+            val = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e) {
+            lang.send(p, "priority-usage");
+            return;
+        }
+        r.setPriority(val);
+        lang.send(p, "priority-success", r.getId(), val);
+    }
+
+    /** /wgc setparent <region> [parent]. */
+    private void setParent(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.admin") && !p.hasPermission("wgc.parent.own") && !p.hasPermission("wgc.parent.others")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        if (args.length < 2) {
+            lang.send(p, "parent-usage");
+            return;
+        }
+        ProtectedRegion r = WgBridge.region(p.getWorld(), args[1]);
+        if (r == null) {
+            lang.send(p, "not-found", args[1]);
+            return;
+        }
+        boolean canOthers = p.hasPermission("wgc.admin") || p.hasPermission("wgc.parent.others");
+        if (!canOthers && !WgBridge.isOwner(r, p.getUniqueId(), p.getName())) {
+            lang.send(p, "flag-no-permission-region");
+            return;
+        }
+        if (args.length < 3) {
+            r.clearParent();
+            lang.send(p, "parent-cleared", r.getId());
+            return;
+        }
+        ProtectedRegion parent = WgBridge.region(p.getWorld(), args[2]);
+        if (parent == null) {
+            lang.send(p, "not-found", args[2]);
+            return;
+        }
+        if (!WgBridge.canBeParent(r, parent)) {
+            lang.send(p, "parent-cycle");
+            return;
+        }
+        try {
+            r.setParent(parent);
+            lang.send(p, "parent-success", r.getId(), parent.getId());
+        } catch (Exception e) {
+            lang.send(p, "parent-cycle");
+        }
+    }
+
+    /** /wgc teleport <region> [spawn]. */
+    private void teleport(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.teleport")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        if (args.length < 2) {
+            lang.send(p, "teleport-usage");
+            return;
+        }
+        ProtectedRegion r = WgBridge.region(p.getWorld(), args[1]);
+        if (r == null) {
+            lang.send(p, "not-found", args[1]);
+            return;
+        }
+        boolean useSpawn = args.length >= 3 && args[2].equalsIgnoreCase("spawn");
+        Location dest = WgBridge.flagLocation(r, useSpawn ? "spawn" : "teleport", p.getWorld());
+        if (dest == null) {
+            dest = WgBridge.center(r, p.getWorld());
+        }
+        if (dest == null) {
+            lang.send(p, "teleport-fail");
+            return;
+        }
+        p.teleport(dest);
+        lang.send(p, "teleport-success", r.getId());
+    }
+
+    /** /wgc setspawn <region> - set the region spawn flag where you stand. */
+    private void setSpawn(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.admin") && !p.hasPermission("wgc.setspawn.own") && !p.hasPermission("wgc.setspawn.others")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        if (args.length < 2) {
+            lang.send(p, "setspawn-usage");
+            return;
+        }
+        ProtectedRegion r = WgBridge.region(p.getWorld(), args[1]);
+        if (r == null) {
+            lang.send(p, "not-found", args[1]);
+            return;
+        }
+        boolean canOthers = p.hasPermission("wgc.admin") || p.hasPermission("wgc.setspawn.others");
+        if (!canOthers && !WgBridge.isOwner(r, p.getUniqueId(), p.getName())) {
+            lang.send(p, "flag-no-permission-region");
+            return;
+        }
+        if (!r.contains(com.sk89q.worldedit.math.BlockVector3.at(
+                p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()))) {
+            lang.send(p, "setspawn-outside");
+            return;
+        }
+        var f = com.sk89q.worldguard.WorldGuard.getInstance().getFlagRegistry().get("spawn");
+        if (f != null) {
+            // wrap the Bukkit location into a WE location for the flag
+            var weLoc = com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(p.getLocation());
+            @SuppressWarnings("unchecked")
+            var flag = (com.sk89q.worldguard.protection.flags.LocationFlag) f;
+            r.setFlag(flag, weLoc);
+        }
+        lang.send(p, "setspawn-success", r.getId());
+    }
+
+    /** /wgc guide [section] - the in-game WGC handbook. */
+    private void guide(CommandSender sender, String[] args) {
+        Lang lang = plugin.lang();
+        if (!(sender instanceof Player p)) {
+            lang.send(sender, "player-only");
+            return;
+        }
+        if (!p.hasPermission("wgc.guide")) {
+            lang.send(p, "no-permission");
+            return;
+        }
+        menus().openGuide(p, args.length >= 2 ? args[1] : null);
+    }
+
     /* ============================ tab-complete ============================ */
 
     @Override
@@ -435,7 +717,38 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
 
         String sub = args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
-            case "info", "delete", "addmember", "removemember", "addowner", "removeowner", "gui" -> {
+            case "define", "create", "def", "d" -> {
+                if (args.length == 2) out.add("[id]");
+            }
+            case "redefine", "update", "move" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+            }
+            case "select", "sel", "s" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+            }
+            case "setpriority", "priority", "pri" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+                if (args.length == 3) out.addAll(List.of("0", "1", "5", "10", "100"));
+            }
+            case "setparent", "parent", "par" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+                if (args.length == 3) out.addAll(regionNames(sender, last));
+            }
+            case "teleport", "tp" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+                if (args.length == 3) out.addAll(List.of("spawn"));
+            }
+            case "setspawn", "ss" -> {
+                if (args.length == 2) out.addAll(regionNames(sender, last));
+            }
+            case "guide", "book", "wiki", "helpme" -> {
+                if (args.length == 2) {
+                    out.addAll(List.of("commands", "flags", "claims", "permissions", "tips"));
+                }
+            }
+            case "info", "delete", "del", "rem", "addmember", "addmem", "am",
+                    "removemember", "remmember", "removemem", "remmem", "rm",
+                    "addowner", "ao", "removeowner", "remowner", "ro", "gui" -> {
                 if (args.length == 2) out.addAll(regionNames(sender, last));
                 if (args.length == 3 && (sub.startsWith("add") || sub.startsWith("remove"))) {
                     for (Player pl : Bukkit.getOnlinePlayers()) {

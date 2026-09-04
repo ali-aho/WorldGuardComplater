@@ -57,4 +57,9 @@ public final class GuiListener implements Listener {
             plugin.gui().forgetIf(p, e.getInventory());
         }
     }
+
+    @EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
+        plugin.chatInputs().handleQuit(e.getPlayer().getUniqueId());
+    }
 }

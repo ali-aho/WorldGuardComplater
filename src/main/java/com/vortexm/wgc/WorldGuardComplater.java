@@ -1,6 +1,7 @@
 package com.vortexm.wgc;
 
 import com.vortexm.wgc.command.WgcCommand;
+import com.vortexm.wgc.gui.ChatInputs;
 import com.vortexm.wgc.gui.GuiListener;
 import com.vortexm.wgc.gui.GuiManager;
 import com.vortexm.wgc.util.Lang;
@@ -23,6 +24,7 @@ public final class WorldGuardComplater extends JavaPlugin {
     private Lang lang;
     private GuiManager gui;
     private VaultHook vault;
+    private ChatInputs chatInputs;
 
     @Override
     public void onEnable() {
@@ -40,6 +42,8 @@ public final class WorldGuardComplater extends JavaPlugin {
         }
 
         this.gui = new GuiManager(this);
+        this.chatInputs = new ChatInputs(this);
+        Bukkit.getPluginManager().registerEvents(this.chatInputs, this);
 
         // Vault (optional)
         this.vault = new VaultHook(this);
@@ -78,6 +82,10 @@ public final class WorldGuardComplater extends JavaPlugin {
 
     public GuiManager gui() {
         return gui;
+    }
+
+    public ChatInputs chatInputs() {
+        return chatInputs;
     }
 
     public VaultHook vault() {
