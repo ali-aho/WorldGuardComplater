@@ -105,6 +105,7 @@ public final class WgBridge {
             BlockVector3 max = sel.getMaximumPoint();
             return new ProtectedCuboidRegion(id.toLowerCase(Locale.ROOT), min, max);
         } catch (Exception e) {
+            org.bukkit.Bukkit.getLogger().warning("[WGC] selection parse failed: " + e);
             return null;
         }
     }
@@ -190,14 +191,14 @@ public final class WgBridge {
         return null;
     }
 
-    /** Center of a region as a Bukkit location (safe y = max). */
+    /** Center of a region as a Bukkit location (feet INSIDE the top block of the region). */
     public static Location center(ProtectedRegion r, org.bukkit.World world) {
         BlockVector3 min = r.getMinimumPoint();
         BlockVector3 max = r.getMaximumPoint();
         if (min == null || max == null) return null;
         return new Location(world,
                 (min.getX() + max.getX()) / 2.0 + 0.5,
-                max.getY() + 1.0,
+                max.getY(),
                 (min.getZ() + max.getZ()) / 2.0 + 0.5);
     }
 

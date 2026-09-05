@@ -1,38 +1,55 @@
-# WORLDGUARD COMPLATER — STATE (update 23:05, 2026-09-04)
+# WORLDGUARD COMPLATER — STATE (update 01:35, 2026-09-05)
 
-## STATUS: TEST E KAMEL PASS SHOD — 14/14 + TAB-COMPLETE OK
+## STATUS: v1.1.0 BUILD OK — E2E 19/25 PASS, 3 BUG FIX SHOD, define test pending
 
-## DONE
-- Plugin build OK: target/WorldGuardComplater-1.0.0.jar (md5 db6b9206f59b16052889c6dbda626835)
-- Server test: Paper 1.20.4 + WG 7.0.9-dist + WE 7.3.0 → plugin ENABLE OK
-- **E2E test ba mineflayer (TestBot): 14/14 PASS**
-  (help, claim, list, info, flag set/string/unset/badvalue/unknown, addmember, removemember, delete-confirm, delete-real, list-empty)
-- **Tab-complete test (mineflayer tabComplete): OK**
-  (/wgc → 11 subcommand; /wgc flag <r> p → passthrough/pistons/potion-splash/pvp; flag value → allow/deny/none; removemember → online players; region names list shodan)
-- Git commit aval: 470e60d "WorldGuard Complater 1.0.0 - full test suite 14/14 PASS" (23 files, 2244 lines)
-- Console PTY kar mikone (fill/tp/kill/rg delete bekhater console commands)
-- Mob ha kill shodan + doMobSpawning false
+## KOJA BUDIM (farda edame az inja)
 
-## KEY LESSONS (test infra)
-- mineflayer: bot.chat('/cmd') BAYAD slash dashte bashe baraye command (bedune slash = chat)
-- bot.physicsEnabled = false → dige invalid_player_movement kick nemigire
-- beine command ha 400ms sleep → disconnect.spam nemigire
-- deop TestBot → baraye test e confirm flow (admin bedune confirm delete mikone)
-- 2 ta "tab_complete timeout" tu ye session = mineflayer quirk bood, na bug e plugin (isolated session OK shod)
+### Kar e in shab (v1.1.0 — gostaresh e addon e kamel)
+- Tahghigh ba browser (sare'): 21 command /rg + 99 flag + permission model + claim rules
+- Command-haye jadid: define, redefine, select, setpriority, setparent, teleport,
+  setspawn, guide (ketabkhune darun-bazi 4 bakhsh) + alias-ha
+- ChatInput system: baraye flag-haye matni az GUI (type tu chat, "cancel" = laghv)
+- GUI gostaresh: Teleport, SetSpawn, Priority +/-, Parent-pick menu, Redefine (shift-click)
+- i18n: ~132 key jadid (en.yml + fa.yml Finglish) — Lang.java alan MERGE mikone (bug fix)
+- pom + plugin.yml version 1.1.0
 
-## REMAINING
-1. **GUI test** — faghat dasti/tavasot user mishe (mineflayer window click nist) → user bayad too bazi /wgc gui bezane
-2. SFTP upload be server asli (node-3-th.berno.app:2022) + check WorldGuard ro server asli
-3. GitHub push (age gh CLI login bashe) — hala repo local commit shode
-4. OPTIONAL: /wgc tp, economy claim cost test (Vault nist ro testserver)
+### Bug-haye peyda va FIX shode (v1.1.0)
+1. i18n key-haye jadid load nemishodan (file ru-disk az 1.0.0 mande bud) → Lang.java
+   alan be on update MERGE mikone (customization nemire) — TA'ID SHOD tu test
+2. delete NPE (region namoojood → internal error) → null-check ghabl az isOwner — FIX
+3. teleport be markaz = y+1 (1 block BALAYE region!) → setspawn "outside" migoft →
+   WgBridge.center() alan y=max.getY() (feet dakhele top block) — TA'ID SHOD (8a PASS)
+4. allow-flight=true tu server.properties e testserver (flying kick ba'd az teleport)
 
-## DEPLOY
-- SFTP: node-3-th.berno.app:2022 u_09339413432.119e34bc / hGWahiygeTwoDvC8 — Paper 1.20.4-499
-- Check kon WorldGuard oonjast; nabud → begu
-- JAR: C:/Users/ALI/worldguard-complater/target/WorldGuardComplater-1.0.0.jar
+### Bug e baz-mande (diagnos shod, FIX nashod hanooz)
+- define: ba //pos1 //pos2 (do slash, op) probe JAVAB DAD "First position set to (1,307,-3)"
+  vali /wgc define hanooz goft "no selection" → IncompleteRegionException az
+  WgBridge.cuboidFromSelection — YA'NI session i ke WE pos1 set mikone ba session i ke
+  WGC we.getSession(p) migire YEKI NIST. Farda: check kon WE 7.3 ar chandta session dare
+  (multi-session per world?) ya getSelection world match nemikone (session dar dunya ye
+  world-e, WGC adapt() mizane dige world-e) → fallback: session.getAllRegions? ya
+  session.setSelection? ya use session.getSelection(session.getSelectionWorld())
+- E2E v3 natije: 19/25 PASS — 6 FAIL hame az hamin yek bug e define mian (5a,5b,6a,6b,6c,11)
+  + 7b,13c (expected FAIL ha — region nabood)
 
-## TEST ARTIFACTS
-- wgc_test.js (14 step), wgc_tab.js (tab probe), tab_iso.js — C:/Users/ALI/vortexlink-build/bot/
-- natije: bot_wgc_results.txt
-- Server log: C:/Users/ALI/vortexlink-build/testserver/wgc_test_console.log
-- Server console PTY: proc_38d4274c8bce (testserver hanooz RUNNING)
+### Ops/Test infra note
+- Test e akhar /deop TestBot mikone → ops.json khali mishe → run e BA'D bayad dasti op she
+  az console (proc_411c97fc37b8: `op TestBot`)
+- Test v3: C:/Users/ALI/vortexlink-build/bot/wgc_test2.js (windowOpen detection baraye guide)
+
+## DEPLOY STATUS
+- Testserver: jar 1.1.0 (md5 3bb5606326ea90f918835b1f457f042a) LOAD shod, enable OK
+- Server e asli: HANOOZ 1.0.0-fix1 (jar e ghadim) — 1.1.0 upload nashod (farda ba'd az
+  hal e define + E2E kamel)
+- SFTP: node-3-th.berno.app:2022 u_09339413432.119e34bc / hGWahiygeTwoDvC8
+
+## GIT
+- Commit 3372bb0: source e v1.1.0 (kamel, build OK) — SAFE
+- Farda: commit e bug-fix e Lang/center + WgBridge + STATE.md
+
+## FARDA (be tarib)
+1. Hal e define/IncompleteRegionException (session mismatch) → test 5a/6a/11 PASS she
+2. E2E v4 kamel (25 test, ba op e persistent)
+3. Git commit + push (age gh CLI)
+4. Upload 1.1.0 be server asli + to restart mikoni + log check
+5. GUI dasti ro to (mineflayer click nadare)

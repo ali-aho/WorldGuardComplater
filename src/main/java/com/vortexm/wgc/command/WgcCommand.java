@@ -402,13 +402,13 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
         }
         String regionId = args[1];
         boolean admin = p.hasPermission("wgc.admin") || p.hasPermission("wgc.delete.others");
-        if (!admin && !WgBridge.isOwner(WgBridge.region(p.getWorld(), regionId), p.getUniqueId(), p.getName())) {
-            lang.send(p, "delete-not-owner");
+        var existing = WgBridge.region(p.getWorld(), regionId);
+        if (existing == null) {
+            lang.send(p, "not-found", regionId);
             return;
         }
-        var r = WgBridge.region(p.getWorld(), regionId);
-        if (r == null) {
-            lang.send(p, "not-found", regionId);
+        if (!admin && !WgBridge.isOwner(existing, p.getUniqueId(), p.getName())) {
+            lang.send(p, "delete-not-owner");
             return;
         }
         // confirm step (unless admin)
@@ -417,7 +417,7 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
             return;
         }
         var rm = WgBridge.managerBukkit(p.getWorld());
-        if (rm != null && WgBridge.delete(rm, r)) {
+        if (rm != null && WgBridge.delete(rm, existing)) {
             lang.send(p, "delete-success", regionId);
             // refund?
             double refund = plugin.getConfig().getDouble("claim.refund", 0.0);

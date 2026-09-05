@@ -25,10 +25,27 @@ public final class Lang {
         // Export built-in language files so servers can edit them on disk.
         for (String name : new String[]{"i18n/en.yml", "i18n/fa.yml"}) {
             try {
-                if (plugin.getResource(name) != null && !new File(plugin.getDataFolder(), name).exists()) {
+                File out = new File(plugin.getDataFolder(), name);
+                if (plugin.getResource(name) == null) continue;
+                if (!out.exists()) {
                     plugin.saveResource(name, false);
+                } else {
+                    // MERGE: add keys that were added in newer plugin versions
+                    // without overwriting server-side customizations.
+                    YamlConfiguration disk = YamlConfiguration.loadConfiguration(out);
+                    YamlConfiguration builtIn = YamlConfiguration
+                            .loadConfiguration(new java.io.InputStreamReader(
+                                    plugin.getResource(name), java.nio.charset.StandardCharsets.UTF_8));
+                    boolean changed = false;
+                    for (String k : builtIn.getKeys(true)) {
+                        if (!disk.contains(k)) {
+                            disk.set(k, builtIn.get(k));
+                            changed = true;
+                        }
+                    }
+                    if (changed) disk.save(out);
                 }
-            } catch (IllegalArgumentException ignored) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -37,11 +54,6 @@ public final class Lang {
             file = new File(plugin.getDataFolder(), "i18n/en.yml");
         }
         messages = YamlConfiguration.loadConfiguration(file);
-        if (messages.getKeys(false).isEmpty() && plugin.getResource("i18n/" + code + ".yml") != null) {
-            // fall back to jar copy
-            var is = plugin.getResource("i18n/" + code + ".yml");
-            messages = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8));
-        }
         String cfgPrefix = plugin.getConfig().getString("prefix");
         prefix = cfgPrefix != null ? cfgPrefix : messages.getString("prefix", "&8[&3WGC&8] &7");
     }
