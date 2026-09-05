@@ -1,8 +1,8 @@
-# Contributing to WorldGuard Complater
+# مشارکت در WorldGuard Complater
 
-Thanks for your interest in contributing! This project is open source under the MIT license.
+از علاقه شما به مشارکت سپاسگزاریم! این پروژه تحت لایسنس MIT منتشر شده است.
 
-## Getting started
+## شروع
 
 ```bash
 git clone https://github.com/VortexM1/WorldGuardComplater
@@ -10,36 +10,33 @@ cd WorldGuardComplater
 mvn package
 ```
 
-Requirements: Java 17+, Maven 3.8+. The build downloads Paper API, WorldGuard API and VaultAPI
-from their repositories automatically.
+پیش‌نیازها: Java 17+ و Maven 3.8+. فرآیند ساخت، API های Paper، WorldGuard و VaultAPI را به‌صورت خودکار از مخازن Maven دانلود می‌کند.
 
-## Ground rules
+## قوانین
 
-1. **WorldGuard API only.** Do not use NMS, reflection into WG internals, or hardcoded
-   protection logic. WorldGuard must stay the single source of truth for protection.
-2. **Keep the curated flag catalog in sync with the real registry.** `FlagCatalog.available()`
-   filters against WorldGuard's registry at runtime, so unknown entries are harmless — but
-   descriptions should stay accurate.
-3. **Both languages.** Any user-facing message needs a key in `i18n/en.yml` AND `i18n/fa.yml`.
-4. **No breaking config changes** without a migration note in the README and a safe default.
-5. **Tab-complete is a feature, not a nicety.** Any new subcommand or argument must complete.
+1. **فقط API رسمی WorldGuard.** از NMS یا کلاس‌های داخلی WorldGuard استفاده نکنید. WorldGuard باید تنها منبع حقیقت محافظت باقی بماند.
+2. **کاتالوگ پرچم‌ها را با رجیستری واقعی هماهنگ نگه دارید.** خروجی `FlagCatalog` در زمان اجرا با رجیستری WorldGuard فیلتر می‌شود، پس ورودی ناشناخته بی‌ضرر است — اما توضیحات باید دقیق بمانند.
+3. **هر دو زبان.** هر پیامی که به بازیکن نمایش داده می‌شود باید هم در `i18n/en.yml` و هم در `i18n/fa.yml` کلید داشته باشد.
+4. **شکستن تنظیمات ممنوع** مگر با یادداشت مهاجرت در README و یک پیش‌فرض ایمن.
+5. **تکمیل خودکار یک ویژگی است، نه تجمل.** هر زیردستور یا آرگومان جدید باید تکمیل خودکار داشته باشد.
 
-## Pull requests
+## درخواست‌های Pull
 
-- One feature or fix per PR
-- Describe what the player/admin experiences, not just what the code does
-- Confirm `mvn package` passes locally
-- Small PRs win: if a refactor is needed, propose it in an issue first
+- هر PR یک ویژگی یا یک رفع اشکال
+- تجربه بازیکن/مدیر را توضیح دهید، نه فقط کد
+- مطمئن شوید `mvn package` به‌صورت محلی با موفقیت اجرا می‌شود
+- PR های کوچک سریع‌تر بررسی می‌شوند؛ اگر بازسازی بزرگ لازم است، ابتدا در یک issue پیشنهاد دهید
 
-## Reporting bugs
+## گزارش اشکال
 
-Include:
-- Server type + version (Paper/Spigot, e.g. 1.20.4)
-- WorldGuard + WorldEdit versions
-- WorldGuardComplater version
-- The exact command you ran and the full output
-- Any console errors (pastebin, not screenshots of text)
+این موارد را ذکر کنید:
 
-## Versioning
+- نوع و نسخه سرور (Paper/Spigot، مثلاً 1.20.4)
+- نسخه WorldGuard + WorldEdit
+- نسخه WorldGuardComplater
+- دستور دقیق اجرا شده و خروجی کامل آن
+- خطاهای کنسول (متن، نه اسکرین‌شات)
 
-`MAJOR.MINOR.PATCH` — MAJOR for API/config breaks, MINOR for features, PATCH for fixes.
+## نسخه‌بندی
+
+`MAJOR.MINOR.PATCH` — MAJOR برای تغییرات شکستن API/تنظیمات، MINOR برای ویژگی‌های جدید، PATCH برای رفع اشکال.

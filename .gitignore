@@ -3,3 +3,8 @@ build_log.txt
 *.iml
 .idea/
 .vscode/
+
+# local ops files (contain credentials / internal notes) - never publish
+tools/
+STATE.md
+mvn.cmd

@@ -1,119 +1,101 @@
 # WorldGuard Complater
 
-**WorldGuard, but completer.** A quality-of-life layer on top of [WorldGuard](https://enginehub.org/worldguard):
-full tab-complete everywhere, a region management GUI, paginated help, one-command land claiming,
-and optional economy support — with zero changes to how WorldGuard itself protects your world.
+**WorldGuard، اما کامل‌تر.** یک افزونه (Addon) برای [WorldGuard](https://enginehub.org/worldguard) که مدیریت مناطق را با رابط گرافیکی، تکمیل خودکار دستورات، راهنمای داخل بازی و موارد دیگر آسان‌تر می‌کند.
 
-> Author: **Vortex_Miner1** · Brand: **VortexM** · License: **MIT**
+> سازنده: **Vortex_Miner1** · برند: **VortexM** · لایسنس: **MIT**
 
-## Features
+---
 
-- **Tab-complete for everything**
-  - Subcommands filtered by permission
-  - Region names (your own regions only, unless admin)
-  - All WorldGuard flag names with descriptions
-  - Smart flag values: `allow/deny/none` for state flags, gamemodes, weather, booleans
-  - Online player names for member/owner management
-- **GUI** (`/wgc`)
-  - Paginated region list (45 per page)
-  - Per-region panel: flags, members, info, delete
-  - One-click state-flag cycling: `unset → allow → deny → unset`
-  - Skull-based member/owner add & remove
-  - Delete confirmation screen
-- **Claiming** (`/wgc claim [name] [radius]`)
-  - Auto region naming (`claim<Player>_<n>`)
-  - Per-player limits via `wgc.limit.<n>` permissions
-  - Min volume, max radius, inside-region and overlap checks
-  - Optional Vault economy cost + delete refund
-- **Info & listing** (`/wgc info`, `/wgc list`)
-  - Flag values, owners, members, volume, bounds
-  - Paginated list; admins see all, players see their own
-- **Flag command** (`/wgc flag <region> <flag> [value]`)
-  - No value = unset the flag
-  - Full WorldGuard flag parsing (strings, ints, sets, locations…)
-- **Members/owners** (`/wgc addmember|removemember|addowner|removeowner`)
-- **Help** (`/wgc help [page]`) — permission-aware, paginated
-- **Bilingual messages**: English + Farsi (romanized), switch with `language: fa` in config
-- **Safe integration**: uses the official WorldGuard API only; WorldGuard stays fully in charge of protection
+## ✨ ویژگی‌ها
 
-## Requirements
+- 🖥️ **رابط گرافیکی کامل** – لیست مناطق، پرچم‌ها، اعضا، اولویت، والد، تلپورت، تعریف مجدد
+- ⌨️ **تکمیل خودکار** – همه‌چیز پیشنهاد می‌شود (مناطق، پرچم‌ها، مقادیر، بازیکنان)
+- 📖 **راهنمای داخل بازی** – `/wgc guide` با بخش‌های دستورات، پرچم‌ها، ادعاها و دسترسی‌ها
+- 🏡 **ادعای زمین** – `/wgc claim` با نام‌گذاری خودکار، محدودیت‌ها و اقتصاد Vault
+- 🛡️ **همه دستورات WorldGuard** – define، redefine، select، setpriority، setparent، teleport، setspawn، flag، member، delete، info، list
+- 🌍 **دو زبانه** – انگلیسی + فارسی، تغییر با `language: fa`
+- 🔒 **امن** – فقط از API رسمی WorldGuard استفاده می‌کند، بدون دور زدن محافظت
+- 💬 **ورودی متنی در رابط گرافیکی** – پرچم‌های متنی (مثل greeting) بدون بستن منو، مستقیم در چت تایپ می‌شوند
 
-| Dependency | Version |
-|---|---|
-| Paper / Spigot | 1.20.4+ (API `1.20`) |
+---
+
+## 📋 پیش‌نیازها
+
+| وابستگی | نسخه |
+|---------|------|
+| Paper / Spigot | 1.20.4+ |
 | Java | 17+ |
-| [WorldGuard](https://enginehub.org/worldguard) | 7.0.9+ (required) |
-| WorldEdit | 7.2+ (comes with WorldGuard) |
-| Vault | any (optional, for claim costs) |
+| WorldGuard | 7.0.9+ |
+| WorldEdit | 7.2+ |
+| Vault | اختیاری (برای هزینه ادعا) |
 
-## Installation
+---
 
-1. Put `WorldGuard` (and `WorldEdit`) into `plugins/`
-2. Put `WorldGuardComplater-1.0.0.jar` into `plugins/`
-3. Optionally install `Vault` + an economy plugin if you want claim costs
-4. Restart the server
+## 📦 نصب
 
-## Commands
+1. فایل `WorldGuardComplater-1.1.0.jar` را دانلود کنید
+2. آن را در پوشه `plugins/` سرور خود قرار دهید
+3. مطمئن شوید WorldGuard و WorldEdit نصب هستند
+4. سرور را ری‌استارت کنید
+5. تمام! از `/wgc` یا `/wgc guide` شروع کنید
 
-| Command | Description | Permission |
-|---|---|---|
-| `/wgc` | Open the regions GUI | `wgc.use` |
-| `/wgc help [page]` | Paginated help | `wgc.help` |
-| `/wgc gui` | Open the regions GUI | `wgc.use` |
-| `/wgc claim [name] [radius]` | Claim the land around you | `wgc.claim` |
-| `/wgc list [page]` | List regions | `wgc.list` |
-| `/wgc info <region>` | Region details | `wgc.info` |
-| `/wgc flag <region> <flag> [value]` | Set / unset a flag | `wgc.flag.own` |
-| `/wgc addmember <region> <player>` | Add a member | `wgc.member.own` |
-| `/wgc removemember <region> <player>` | Remove a member | `wgc.member.own` |
-| `/wgc addowner <region> <player>` | Add an owner | `wgc.member.own` |
-| `/wgc removeowner <region> <player>` | Remove an owner | `wgc.member.own` |
-| `/wgc delete <region> [confirm]` | Delete a region | `wgc.delete.own` |
-| `/wgc reload` | Reload the config | `wgc.admin` |
+> نکته: فایل‌های زبان به‌صورت خودکار در `plugins/WorldGuardComplater/i18n/` ساخته می‌شوند و می‌توانید آن‌ها را شخصی‌سازی کنید. به‌روزرسانی افزونه، تغییرات شما را حفظ و فقط کلیدهای جدید را اضافه می‌کند.
 
-Alias: `/worldguardcomplater`
+---
 
-## Permissions
+## 📖 دستورات
 
-See [PERMISSIONS.md](PERMISSIONS.md) for the full table with defaults.
+| دستور | توضیح |
+|-------|-------|
+| `/wgc help [صفحه]` | نمایش راهنما |
+| `/wgc guide` | باز کردن راهنمای داخل بازی |
+| `/wgc gui` | باز کردن رابط گرافیکی |
+| `/wgc claim [نام] [شعاع]` | ادعای زمین اطراف خودتان |
+| `/wgc define <شناسه>` | ایجاد منطقه از انتخاب WorldEdit (`//wand`، `//pos1`، `//pos2`) |
+| `/wgc redefine <منطقه>` | تغییر محدوده منطقه با انتخاب جدید WorldEdit (پرچم‌ها حفظ می‌شوند) |
+| `/wgc select <منطقه>` | تبدیل منطقه به انتخاب WorldEdit |
+| `/wgc flag <منطقه> <پرچم> [مقدار]` | تنظیم/حذف پرچم (بدون مقدار = حذف) |
+| `/wgc setpriority <منطقه> <مقدار>` | تنظیم اولویت منطقه |
+| `/wgc setparent <منطقه> [والد]` | تنظیم والد (بدون والد = حذف وابستگی) |
+| `/wgc teleport <منطقه> [spawn]` | تلپورت به مرکز یا اسپاون منطقه |
+| `/wgc setspawn <منطقه>` | تنظیم اسپاون منطقه در مکان فعلی شما |
+| `/wgc addmember <منطقه> <بازیکن>` | افزودن عضو |
+| `/wgc removemember <منطقه> <بازیکن>` | حذف عضو |
+| `/wgc addowner <منطقه> <بازیکن>` | افزودن مالک |
+| `/wgc removeowner <منطقه> <بازیکن>` | حذف مالک |
+| `/wgc delete <منطقه> [confirm]` | حذف منطقه (مالکان باید confirm تایپ کنند) |
+| `/wgc list [صفحه]` | لیست مناطق |
+| `/wgc info [منطقه]` | اطلاعات منطقه (بدون آرگومان = منطقه زیر پای شما) |
+| `/wgc reload` | بارگذاری مجدد تنظیمات |
 
-## Configuration
+---
 
-`plugins/WorldGuardComplater/config.yml`:
+## 🔐 دسترسی‌ها
+
+برای لیست کامل به [PERMISSIONS.md](PERMISSIONS.md) مراجعه کنید.
+
+---
+
+## 🌐 زبان
+
+در `config.yml`:
 
 ```yaml
-language: en            # or: fa
-claim:
-  prefix: "claim"
-  auto-name: true
-  default-limit: 3
-  default-radius: 16
-  max-radius: 48
-  min-volume: 64
-  height: -1            # -1 = full world height
-  cost: 0.0             # requires Vault
-  refund: 0.0
-economy:
-  enabled: true
-gui:
-  enabled: true
-prefix: "&8[&3WGC&8] &7"
+language: "fa"  # en / fa
 ```
 
-Messages live in `plugins/WorldGuardComplater/i18n/en.yml` and `fa.yml`.
+---
 
-## Building
+## 📄 لایسنس
 
-```bash
-mvn package
-```
+لایسنس MIT – به [LICENSE](LICENSE) مراجعه کنید
 
-Output: `target/WorldGuardComplater-1.0.0.jar`
+---
 
-## Contributing
+## 🤝 مشارکت
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and PRs are welcome.
+به [CONTRIBUTING.md](CONTRIBUTING.md) مراجعه کنید
 
-## License
+---
 
-[MIT](LICENSE) © Vortex_Miner1 (VortexM)
+**ساخته شده با ❤️ توسط VortexM**

@@ -1,27 +1,37 @@
-# Permissions — WorldGuard Complater
+# دسترسی‌ها — WorldGuard Complater
 
-| Node | Description | Default |
-|---|---|---|
-| `wgc.use` | Use `/wgc` (opens the GUI) | all players |
-| `wgc.help` | `/wgc help` | all players |
-| `wgc.info` | `/wgc info` | all players |
-| `wgc.claim` | `/wgc claim` | all players |
-| `wgc.list` | `/wgc list` | all players |
-| `wgc.flag.own` | Set flags on **own** regions | all players |
-| `wgc.member.own` | Manage members/owners of **own** regions | all players |
-| `wgc.delete.own` | Delete **own** regions (with confirm) | all players |
-| `wgc.limit.<n>` | Max number of claims (`wgc.limit.10` = 10 claims) | none |
-| `wgc.limit.bypass` | Ignore claim limits | op |
-| `wgc.free` | Skip claim cost (reserved; cost currently applies to everyone) | op |
-| `wgc.flag.others` | Set flags on **any** region | op |
-| `wgc.member.others` | Manage members/owners of **any** region | op |
-| `wgc.delete.others` | Delete **any** region (no confirm) | op |
-| `wgc.admin` | `/wgc reload`, full GUI access, sees all regions in list | op |
+| دسترسی | توضیح | پیش‌فرض |
+|--------|-------|---------|
+| `wgc.use` | استفاده از `/wgc` و باز کردن رابط گرافیکی | همه بازیکنان |
+| `wgc.help` | `/wgc help` | همه بازیکنان |
+| `wgc.info` | `/wgc info` | همه بازیکنان |
+| `wgc.claim` | `/wgc claim` | همه بازیکنان |
+| `wgc.list` | `/wgc list` | همه بازیکنان |
+| `wgc.guide` | `/wgc guide` | همه بازیکنان |
+| `wgc.select` | `/wgc select` | همه بازیکنان |
+| `wgc.teleport` | `/wgc teleport` | همه بازیکنان |
+| `wgc.flag.own` | تنظیم پرچم‌ها روی مناطق **خودتان** | همه بازیکنان |
+| `wgc.member.own` | مدیریت اعضا/مالکین مناطق **خودتان** | همه بازیکنان |
+| `wgc.delete.own` | حذف مناطق **خودتان** (با تأیید) | همه بازیکنان |
+| `wgc.priority.own` | تغییر اولویت مناطق **خودتان** | همه بازیکنان |
+| `wgc.parent.own` | تنظیم والد مناطق **خودتان** | همه بازیکنان |
+| `wgc.redefine.own` | تعریف مجدد مناطق **خودتان** | همه بازیکنان |
+| `wgc.setspawn.own` | تنظیم اسپاون مناطق **خودتان** | همه بازیکنان |
+| `wgc.limit.<n>` | حداکثر تعداد ادعا (`wgc.limit.10` = ۱۰ ادعا) | هیچ |
+| `wgc.limit.bypass` | نادیده گرفتن محدودیت ادعا | اپراتور |
+| `wgc.free` | صرف‌نظر از هزینه ادعا | اپراتور |
+| `wgc.flag.others` | تنظیم پرچم‌ها روی **هر** منطقه | اپراتور |
+| `wgc.member.others` | مدیریت اعضا/مالکین **هر** منطقه | اپراتور |
+| `wgc.delete.others` | حذف **هر** منطقه (بدون تأیید) | اپراتور |
+| `wgc.priority.others` | تغییر اولویت **هر** منطقه | اپراتور |
+| `wgc.parent.others` | تنظیم والد **هر** منطقه | اپراتور |
+| `wgc.redefine.others` | تعریف مجدد **هر** منطقه | اپراتور |
+| `wgc.setspawn.others` | تنظیم اسپاون **هر** منطقه | اپراتور |
+| `wgc.admin` | `/wgc reload`، دیدن همه مناطق در لیست و رابط گرافیکی، دسترسی کامل | اپراتور |
 
-## Notes
+## نکات
 
-- Ownership is checked against the region's **owner** domain (owner or member lists via UUID or name).
-- `wgc.flag.own` etc. require the player to be an **owner** of the region, not just a member.
-- Claim limit: the **highest** `wgc.limit.<n>` a player has wins; if none, `claim.default-limit`
-  from `config.yml` applies.
-- Admins (`wgc.admin`) also see all regions in `/wgc list` and in tab-complete.
+- مالکیت بر اساس لیست **مالکین** منطقه بررسی می‌شود (UUID یا نام).
+- `wgc.flag.own` و موارد مشابه نیاز دارند بازیکن **مالک** منطقه باشد، نه فقط عضو.
+- محدودیت ادعا: **بالاترین** `wgc.limit.<n>` که بازیکن دارد برنده است؛ اگر نداشت، `claim.default-limit` از `config.yml` اعمال می‌شود.
+- اپراتورها (`wgc.admin`) همه مناطق را در `/wgc list` و رابط گرافیکی می‌بینند و حذف آن‌ها بدون تأیید انجام می‌شود.
