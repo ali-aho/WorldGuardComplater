@@ -61,6 +61,57 @@ permissions:
   wgc.member.others:
     description: Manage members/owners of any region
     default: op
+  wgc.guide:
+    description: /wgc guide
+    default: true
+  wgc.select:
+    description: /wgc select
+    default: true
+  wgc.teleport:
+    description: /wgc teleport
+    default: true
+  wgc.priority.own:
+    description: Set priority on own regions
+    default: true
+  wgc.priority.others:
+    description: Set priority on any region
+    default: op
+  wgc.parent.own:
+    description: Set parent on own regions
+    default: true
+  wgc.parent.others:
+    description: Set parent on any region
+    default: op
+  wgc.redefine.own:
+    description: Redefine own regions
+    default: true
+  wgc.redefine.others:
+    description: Redefine any region
+    default: op
+  wgc.setspawn.own:
+    description: Set spawn on own regions
+    default: true
+  wgc.setspawn.others:
+    description: Set spawn on any region
+    default: op
   wgc.admin:
     description: Admin commands (reload, GUI access to all)
     default: op
+    children:
+      wgc.use: true
+      wgc.help: true
+      wgc.info: true
+      wgc.claim: true
+      wgc.list: true
+      wgc.guide: true
+      wgc.select: true
+      wgc.teleport: true
+      wgc.delete.others: true
+      wgc.flag.others: true
+      wgc.member.others: true
+      wgc.priority.others: true
+      wgc.parent.others: true
+      wgc.redefine.others: true
+      wgc.setspawn.others: true
+      wgc.limit.bypass: true
+      wgc.free: true

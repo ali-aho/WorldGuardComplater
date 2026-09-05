@@ -109,7 +109,8 @@ public final class Claims {
 
         // 7. money check (Vault)
         double cost = cfg.getDouble("claim.cost", 0.0);
-        if (cost > 0 && plugin.vault() != null && plugin.vault().economy() != null) {
+        if (cost > 0 && !p.hasPermission("wgc.free")
+                && plugin.vault() != null && plugin.vault().economy() != null) {
             if (!plugin.vault().economy().has(p, cost)) {
                 return Result.MONEY;
             }

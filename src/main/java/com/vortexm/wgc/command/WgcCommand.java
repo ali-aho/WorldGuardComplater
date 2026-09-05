@@ -71,6 +71,10 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
                     lang.send(sender, "player-only");
                     return true;
                 }
+                if (!p.hasPermission("wgc.use")) {
+                    lang.send(p, "no-permission");
+                    return true;
+                }
                 if (!plugin.getConfig().getBoolean("gui.enabled", true)) {
                     lang.send(sender, "gui-open-denied");
                     return true;
