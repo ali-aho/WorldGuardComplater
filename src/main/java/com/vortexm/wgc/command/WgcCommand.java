@@ -279,6 +279,8 @@ public final class WgcCommand implements CommandExecutor, TabCompleter {
         var members = r.getMembers();
         p.sendMessage(lang.fmt("info-owners", owners == null ? "-" : owners.toUserFriendlyString()));
         p.sendMessage(lang.fmt("info-members", members == null ? "-" : members.toUserFriendlyString()));
+        p.sendMessage(lang.fmt("info-priority", r.getPriority()));
+        p.sendMessage(lang.fmt("info-parent", r.getParent() != null ? r.getParent().getId() : "-"));
         p.sendMessage(lang.fmt("info-volume", WgBridge.volume(r)));
         p.sendMessage(lang.fmt("info-bounds", WgBridge.boundsString(r)));
     }
