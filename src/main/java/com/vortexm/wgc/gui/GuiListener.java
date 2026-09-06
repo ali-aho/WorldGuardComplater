@@ -33,7 +33,11 @@ public final class GuiListener implements Listener {
         }
         int raw = e.getRawSlot();
         if (raw < 0 || raw >= top.getSize()) return;
-        menu.handler().onClick(p, e);
+        try {
+            menu.handler().onClick(p, e);
+        } catch (Exception ex) {
+            plugin.getLogger().severe("GUI click handler failed: " + ex);
+        }
     }
 
     @EventHandler

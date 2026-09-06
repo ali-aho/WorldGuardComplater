@@ -43,7 +43,10 @@ public final class Menus {
     /* ---------------- regions list ---------------- */
 
     public void openRegions(Player p, int page) {
-        List<ProtectedRegion> regions = WgBridge.regionsOwnedBy(p.getWorld(), p.getUniqueId(), p.getName());
+        // admins see ALL regions in the GUI (same rule as /wgc list), others only their own
+        List<ProtectedRegion> regions = p.hasPermission("wgc.admin")
+                ? WgBridge.regionsOf(p.getWorld())
+                : WgBridge.regionsOwnedBy(p.getWorld(), p.getUniqueId(), p.getName());
         regions.sort(Comparator.comparing(ProtectedRegion::getId));
 
         int perPage = 45;
@@ -251,19 +254,21 @@ public final class Menus {
         openGuideSection(p, sec);
     }
 
+    private static final int GUIDE_BACK_SLOT = 22; // bottom-middle of a 27-slot menu
+
     private void openGuideSection(Player p, String section) {
         Lang lang = plugin.lang();
         List<String[]> pages = GuideContent.pages(plugin, section); // [title, l1, l2, l3]
         Inventory inv = Bukkit.createInventory(null, 27, lang.fmt("guide-section-title",
                 section.substring(0, 1).toUpperCase(Locale.ROOT) + section.substring(1)));
-        int slot = 11;
-        for (int i = 0; i < Math.min(5, pages.size()); i++) {
+        int[] pageSlots = {2, 4, 6, 11, 15}; // 5 pages: 3 top row, 2 middle row
+        for (int i = 0; i < Math.min(pageSlots.length, pages.size()); i++) {
             String[] page = pages.get(i);
-            inv.setItem(slot + i * 2, Text.item(Material.PAPER, page[0], List.of(page[1], page[2], page[3])));
+            inv.setItem(pageSlots[i], Text.item(Material.PAPER, page[0], List.of(page[1], page[2], page[3])));
         }
-        inv.setItem(CLOSE_SLOT, Text.item(Material.BARRIER, "&cBack", null));
+        inv.setItem(GUIDE_BACK_SLOT, Text.item(Material.BARRIER, "&cBack", null));
         plugin.gui().open(p, inv, (player, e) -> {
-            if (e.getSlot() == CLOSE_SLOT) {
+            if (e.getSlot() == GUIDE_BACK_SLOT) {
                 openGuide(player, null);
             }
         });
