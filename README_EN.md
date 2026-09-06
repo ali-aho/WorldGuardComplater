@@ -4,7 +4,7 @@
 
 > Author: **Vortex_Miner1** · Brand: **VortexM** · License: **MIT**
 
-🌍 **نسخه فارسی / Farsi version:** [README.md](README.md)
+🌍 **نسخه فارسی / Perssioan version:** [README.md](README.md)
 
 ---
 
