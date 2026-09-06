@@ -1,10 +1,18 @@
 # WorldGuard Complater
 
+<div align="center">
+
+🌍 **Language selection / انتخاب زبان**
+
+[🇮🇷 فارسی](./README.md) &nbsp;·&nbsp; [🇬🇧 English](./README_EN.md)
+
+</div>
+
+---
+
 **WorldGuard, but completer.** A quality-of-life addon for [WorldGuard](https://enginehub.org/worldguard) that makes region management easier with a GUI, tab-complete, an in-game guide, and more.
 
 > Author: **Vortex_Miner1** · Brand: **VortexM** · License: **MIT**
-
-🌍 **نسخه فارسی / Perssioan version:** [README.md](README.md)
 
 ---
 

@@ -1,10 +1,18 @@
 # WorldGuard Complater
 
+<div align="center">
+
+🌍 **انتخاب زبان / Language selection**
+
+[🇮🇷 فارسی](./README.md) &nbsp;·&nbsp; [🇬🇧 English](./README_EN.md)
+
+</div>
+
+---
+
 **WorldGuard، اما کامل‌تر.** یک افزونه (Addon) برای [WorldGuard](https://enginehub.org/worldguard) که مدیریت مناطق را با رابط گرافیکی، تکمیل خودکار دستورات، راهنمای داخل بازی و موارد دیگر آسان‌تر می‌کند.
 
 > سازنده: **Vortex_Miner1** · برند: **VortexM** · لایسنس: **MIT**
-
-🌍 **English version / نسخه انگلیسی:** [README_EN.md](README_EN.md)
 
 ---
 
