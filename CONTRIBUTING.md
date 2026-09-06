@@ -5,7 +5,7 @@
 ## شروع
 
 ```bash
-git clone https://github.com/VortexM1/WorldGuardComplater
+git clone https://github.com/ali-aho/WorldGuardComplater
 cd WorldGuardComplater
 mvn package
 ```

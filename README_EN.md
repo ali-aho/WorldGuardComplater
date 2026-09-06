@@ -4,6 +4,19 @@
 
 > Author: **Vortex_Miner1** · Brand: **VortexM** · License: **MIT**
 
+🌍 **نسخه فارسی / Farsi version:** [README.md](README.md)
+
+---
+
+## 🐞 Bug reports & ⭐ Support
+
+Found a bug or have a suggestion? Please open an [Issue](../../issues/new) — bug reports get quick attention.
+If this plugin is useful to you, give the repo a ⭐ **Star** to support its development!
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution guide and the contributor agreement.
+
 ---
 
 ## ✨ Features
