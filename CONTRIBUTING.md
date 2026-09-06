@@ -1,5 +1,15 @@
 # مشارکت در WorldGuard Complater
 
+<div align="center">
+
+🌍 **انتخاب زبان / Language selection**
+
+[🇮🇷 فارسی](./CONTRIBUTING.md) &nbsp;·&nbsp; [🇬🇧 English](./CONTRIBUTING_EN.md)
+
+</div>
+
+---
+
 از علاقه شما به مشارکت سپاسگزاریم! این پروژه تحت لایسنس MIT منتشر شده است.
 
 ## شروع

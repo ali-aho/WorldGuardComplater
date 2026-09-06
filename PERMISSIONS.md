@@ -1,5 +1,15 @@
 # دسترسی‌ها — WorldGuard Complater
 
+<div align="center">
+
+🌍 **انتخاب زبان / Language selection**
+
+[🇮🇷 فارسی](./PERMISSIONS.md) &nbsp;·&nbsp; [🇬🇧 English](./PERMISSIONS_EN.md)
+
+</div>
+
+---
+
 | دسترسی | توضیح | پیش‌فرض |
 |--------|-------|---------|
 | `wgc.use` | استفاده از `/wgc` و باز کردن رابط گرافیکی | همه بازیکنان |

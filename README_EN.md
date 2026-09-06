@@ -23,7 +23,7 @@ If this plugin is useful to you, give the repo a ⭐ **Star** to support its dev
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution guide and the contributor agreement.
+See [CONTRIBUTING.md](CONTRIBUTING_EN.md) for the contribution guide and the contributor agreement.
 
 ---
 
@@ -93,7 +93,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution guide and the contri
 
 ## 🔐 Permissions
 
-See [PERMISSIONS.md](PERMISSIONS.md) for the full list.
+See [PERMISSIONS.md](PERMISSIONS_EN.md) for the full list.
 
 ---
 
@@ -115,7 +115,7 @@ MIT License – see [LICENSE](LICENSE)
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+See [CONTRIBUTING.md](CONTRIBUTING_EN.md)
 
 ---
 
